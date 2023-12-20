@@ -1,56 +1,75 @@
 ---
 title: "IML 2023: Predicting Saturation Vapour Pressure From Molecular Properties"
-author: "Helmi Karesti, Maija Säisä"
+author: "Helmi Karesti, Janne Penttala, Maija Säisä"
 output: pdf_document
-date: "2023-11-03"
+date: "2023-12-10"
 ---
-
-# Instructions
-
-In this term project, you will train a regression model on a data set of atmospheric measurements. To complete the project, you should deliver:
-
--   Sun 10 December: Predictions (to be submitted on Kaggle - we will provide the link later) for the test set, and a preliminary version of your project report as a single PDF file in Moodle.
--   Fri 15 December: Term project presentation for some of you.
--   Sun 23 December: The final report as a single PDF file in Moodle.
-
-## Your task
-
-Since **saturation vapour pressure** is a continuous variable, your task is to build a regression-based machine-learning model that uses the aforementioned interpretable features or topographical fingerprints of the molecules.
-
-NOTE: This is a non-trivial regression task. It is possible to do it in many ways. The most straightforward regression model that you could build is a linear regressor, but that is inefficient for the task since it assumes a linear relationship between input features and the predicted values. Therefore, you should undertake thorough data exploration, pre-processing, feature selection, model selection, R2 score estimation, etc., appropriately since you will report and analyse your choices and results in the project deliverable.
-
-The project's purpose is not to (even try to!) replicate any methods in the literature, make a super-complex best-performing classifier that beats everything else or attempt to use other data sources, etc., to obtain the best possible R2 score . Do not use any method that you do not understand yourself! Accuracy of the predictions on the test data is not a grading criterion by itself, even though a terrible accuracy may indicate something else fishy in your approach (which could affect grading).
-
-### The final report should contain, among other things, the following:
-
--   The names of the group members.
--   The name of the team you used to submit the predictions on Kaggle.
--   The stages of your data analysis, including how you looked at the data to understand it (visualisations, unsupervised learning methods, etc.).
--   Description of considered machine learning approaches and pros and cons of the chosen approach for this application.
--   Steps you took to select good features and model parameters.
--   Summary of your results, insights learned, and how the regression model performed.
--   As a final section, please include a self-grading report (at most 1 page) that suggests a grade for yourself (integer 0-5) by using the attached grading instructions (see below).
-
-It is enough to use one of the basic algorithms, do the feature and model selection parts as instructed (you should probably use cross-validation!), and prepare a well-written report to pass the project.
-
-### Practical instructions for writing the report:
-
-- Your report should read like a self-contained blog post or scientific article that is understandable and without any task description. You should explain what you have done and why you have done it so that a person familiar with machine learning can understand what you have done and could, in principle, reproduce what you have done based on your report alone. Put some emphasis on presentation and readability (one of the grading criteria): imagine that the report’s reader would be your future boss, who appreciates a clear and concise presentation.
-- You are not required to hand in any program code. Your report, thus, should look different from a code listing! Your report may contain code snippets if you explain what the reader is supposed to conclude from your code. We may look at them, but we won’t go fishing for results and missing details from your code. In other words, all relevant parts of your report should be understandable without going through any code. If you need to include more significant chunks of code, please put them in an appendix so we can easily skip them when grading your report.
-- Your report may include tables or figures. Always explain in detail what the tables or figures show and what the reader expects to conclude from them. If you have a figure or table, the text should refer to it at least once.
-- You can use suitable typesetting software that produces legible PDF output (LaTeX, Word, R Markdown, etc.). There is no strict page limit so you can use a readable font (e.g., 12 pt serif font), margins, and appropriately sized figures. Note that Jupyter Notebooks often lead to poorly formatted pdf. Out of curiosity, I took a random sample of 16 similar final reports that got total points from other courses I lectured. The task was identical to this one but without self-grading (which may add a page). The page counts of these final reports were 7, 7, 9, 10, 10, 10, 12, 12, 13, 13, 14, 14, 14, 14, 14, and 14. The reports had between 7 and 14 pages, the median being 12.5.
-
-Even though you can modify your approach and adjust your algorithms for the final report, you are not required to (and probably should not) make significant changes. The idea is to polish the report and complete whatever steps you have planned.
-
 
 # Introduction
 
+The objective of our project was to build a machine learning model to predict saturation vapour pressure based on some interpretable features. We were given data sets to help us build our model. We started by getting familiar with the data through data exploration and preprocessing. After we had verified that our data was clean, we used it to select our model. Finally, after model selection we applied a few different methods to try and optimize the performance and accuracy of our model. The prediction accuracy was scored based on R2 value. This report contains a more in-depth explanation of our methods regarding the steps of building our model.
 
 # Data analysis
 
+## Preprocessing
+
+As a first step to preprocessing we made sure that our data is valid. In other words, we wanted to ensure there are no missing nor mismatched values for any of the variables. This was quite straightforward as Kaggle provided us variable-specific graphs for each variable, meaning we could verify the validity of both the training and test data with the information from Kaggle. We noted that all the data points in both data sets were valid, and thus, the variables did not have missing values.
+
+After validating the data, there were a few minor changes we decided to make to further prepare our data. First of all we decided to remove the 'Id' column from both data sets, as this would not be needed in predicting our target variable. Another thing we did was to apply one-hot encoding for a variable called 'parentspecies', as this was the only categorical variable. This encoding transformed the variable 'parentspecies' into eight binary columns (for example, category_apin, category_apin_decane etc.) for the train set and seven binary columns for the test set. Therefore, after applying one-hot encoding, we needed to create an extra column for the test set to match our training set. 
+
+Lastly we wanted to ensure the data consistency of both training and test data. To do this, we simply compared the two data sets to each other and made sure that both of them have the same columns in the same order. The number of columns in the preprocessed data sets were 32.
+
+## Data exploration
+
+The data used in the project is based on GeckoQ dataset. Our first step with the project was to get familiar with this dataset and get a preliminary understanding of the features it has. Our plan was to first use material that was already provided by the project descriptions and then continue with some more data exploration by handling the data ourselves. We first got familiar with the features and their descriptions. Understanding the features perfectly is not necessarily important in this context, however it is useful to have a general understanding of how they might affect our target variable.
+
+We noticed that the range of values of the variables varied notably. Because we planned to test several models, some of which would perform better with scaled variables, we decided to apply the StandardScaler() on the data sets. We found some information, which claimed that scaling may not be appropriate for one-hot encoded variables. We considered whether we should leave these variables outside of the scaler function. Nevertheless, we found more support for applying scaling also to one-hot encoded variables to tackle the same challenges faced with the numerical variables. Thus, we ended up also scaling the one-hot encoded variables. IS THIS TRUE!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+To get a better understanding of our data, we created three plots for each of the explainable variables. For each explainable variable, we plotted i) the explainable variable against our target variable as a scatter plot, ii) the count of observations per explainable variable value as a histogram, and iii) the distribution of explainable variable values as a boxplot. We did this with and without scaling, and concluded that the shape of the graphs, naturally, remains the same, and the only difference is the value of the explainable variables, that is, the x axis. The three graphs for one of the explainable variables are shown in Figure 1.
+
+![The three graphs for the (scaled) explainable variable 'MW'. Equal plots created for each of the explainable variables.](pictures/data_exp_1.png)
+
+Analyzing the first graph, that is, the scatter plot, helped us to understand the relationship of each variable and the target variable better. The scatter plots demonstrated well that there was only one continuous variable while the rest of the variables were discrete (including the one-hot encoded categorical variable). That is, the 'MW' or molecule's molecular weight is the only continuous variable. However, we concluded that this information does not guide us to any specific direction.
+
+Also, many of the variables had in maximum three different values, so the values were quite concentrated on specific points. Later, this information was used in feature selection, testing the effect of dropping the features with only a few different values. However, feature selection based on these observations did not improve the results.
+
+Furthermore, we could observe a somewhat linear relationship for some of the variables, for example, 'MW', 'NumHBondDonors', 'NumOfAtoms', and 'NumOfO' (see Figure 2). Therefore, also including the linear regression model and testing including only these type of features was supported. However, linear regression model or feature selection based on these observations did not improve the results. 
+
+![Somewhat linear relationship observed in some of the scatter plots.](pictures/data_exp_2_linear.png)
+
+Analyzing the second graph, that is, the histogram, helped us to observe the occurrence of the various variable values (see Figure 3). We noticed the histograms of the various variables differed from each other. Some of the count distributions reminded a half or full normal distribution while in the other extreme the values were concentrated around only one value. We tested selecting only the features that were not too concentrated on a single value. However, these tests did not improve the results.
+
+![Various distributions for the count of observation values.](pictures/data_exp_3_count.png)
+
+- NOTE!!!! Category_toluene might be interesting. Others not so much.!!!!!!!!!!!!!!!!!!!!!!!!!!
+- Mitä muuta testaa?
+
+The third graph, that is the boxplot, complemented well the first two graphs. As expected, the distributions of the scaled values notably differed from each other. Other distributions did not have any outliers while others had plenty of them (two graphs on the left in Figure 4). The variables, which were concentrated around a single value, demonstrated this behavior also in the boxplot; outside of the single value there were only outliers (third graph from the left in Figure 4). Furthermore, we noticed that from the one-hot encoded categorical variable, the category_toluene seemed to be the only one with a remarkable amount of two values (the graph on the right in Figure 4). Due to this observation, we tested to drop the other categorical variables to see the effect on the results. WHAT WHAT WAS THE RESULT?
+
+The observations from the boxplots encouraged us to test dropping outliers from the data set. First, we did this by dropping all the rows with at least one outlier based on the distance from the first quartile (Q1) or the third quartile (Q3); we defined the distance as a multiplier (for example, 1.5) times the interquartile range (IQR). However, this analysis did not improve the results because the number of the resulting rows was in the magnitude of 10% of the original number of rows. This analysis helped us to understand that there seemed to be a trade-off between the number of rows in the data set and excluding the outliers from the data set. Because this approach did not work well for our purposes, we tested another approach to drop outliers based on a threshold for z score. We tested dropping out rows which included at least one variable that could be regarded as an outlier based on a threshold level (tested a threshold range from 2 to 4). In conclusion, the results made more sense because the number of rows in a data set after removing the outliers varied from xx (z<2) to 25,166 (z<4). However, the conclusions were the same; a larger number of rows in the data set overweights any benefit received from removing outliers with this method for most models. Worth noting is that for the OLS Linear Regression model, the R2 score slightly increases when moving from a threshold level 4 to 3, but the R2 score of this model is below SVR, so not worth removing outliers from the data set.
+
+![Distributions of observation values as a boxplot.](pictures/data_exp_4_box.png)
+
+
+In addition, we compared the distributions of variable values for both train and test data. DOES THIS REFER TO BOXPLOT OR SOMETHING ELSE? This would turn out useful in selecting the features for our model.
 
 # Methods
 
+## Model selection
+
+For selecting our model, we first compared different models and their results in predicting the target variable. We evaluated the performance of the models based on their R2 score. The models we considered were Dummy Model, OLS Linear Regression, Random Forest, Support Vector Regressor, Lasso Regression and eXtreme Gradient Boosting. After testing these six different models with and without scaling, the best results were obtained by Support Vector Regression model with scaling.
+
+We also applied cross-validation in order to further verify our choice of model. We did this by using k-fold cross-validation (with k set to 5). The performance was once again evaluated by the models R2 score. As a result, Support Vector Regression model had once again the best performance.
+
+## Optimizing the model
+
+To optimize our model to perform better, we tried i.a. removing outliers, tuning hyperparameters and selecting less features. Even if we obtained the best initial results with SVR, we decided to try and optimize the performance with other models as well. These models included Random Forest and XGB. We used randomized search to explore on different combinations of hyperparameters in order to improve the performance. The three models (SVR, Random Forest & XGB) delivered somewhat similar results, R2 score locally varying from 0.74 to 0.76 (when using 25% test data split). The effect of using the best hyperparameters vs. default values when defining the models turned out to be minimal. 
+
+We also tried different combinations of the features to see if we could improve the performance. We ended up dropping several features that were produced by one-hot encoding of *parentspecies* variable, as they seemed to contain little information with both train and test data. These variables were *category_None*, *category_apin_decane*, *category_apin_decane_toluene*, *category_apin_toluene* and *category_decane_toluene*. We also removed *C.C.C.O.in.non.aromatic.ring*, *aromatic.hydroxyl* and *nitroester* variables as they too contained only little information. These feature selection methods resulted in a small improvement in the performance of the models. 
+
+The evaluation of the optimization process for the Kaggle competition turned out to be challenging, as the R2 score in Kaggle did not correlate with local results. In the end we obtained the best results with SVR using standard scaler, default hyperparameters and the feature selection as described above. 
+
+# Feature selection
 
 # Results
 
