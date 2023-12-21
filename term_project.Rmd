@@ -108,14 +108,35 @@ In the end we obtained the best results with SVR using standard scaler, default 
 
 
 
-# 4 Results & conclusions
+# 4 Results
 
+Our results consist of initial results using seven different models and our final R2 scores using the best performing models with machine learning methods.
+
+### 4.1 Initial results with different models
+
+Our initial results include the R2 scores of seven different models. To obtain these scores we used scaled data.
+
+![Results of the basic models with scaled data](pictures/initial_results.png){ width=30% height=30% }
+
+As we can see from figure 5, Support Vector Regressor and MLP Regressor performed the best out of our basic models. Random Forest, OLS Linear Regressor and XGBRegressor also gave quite good results. Lasso and Elastic Net performed significantly worse than the other models. 
+
+### 4.2 Final R2 scores
+
+After seeing our initial results with different models, we applied some machine learning methods to the best performing models to see if we could improve the R2 score. The machine learning methods applied to achieve these results are discussed more in-depth in the previous section. The final results are presented in figure 6 below.
+
+![Results of the best models](pictures/final_results.png){ width=30% height=30% }
+
+The impact of the machine learning methods was not as big as expected. Support Vector Regressor and XGBRegressor had noticeable improvement over their basic models.
+
+# 5 Conclusions
+
+In conclusion we build a machine learning model and evaluated the performance of our model by R2 score. To build our model we experimented on several basic models and chose the best performing one. By applying machine learning methods we were able to improve our model further. In the model building process we tried out many different approaches to improve our model, however not all of them had noticeable impact. 
 
 \newpage
 
-# 5 Self-grading
+# 6 Self-grading
 
-## 5.1 Grade for the deliverables
+## 6.1 Grade for the deliverables
 
 **Grade: 4**
 
@@ -125,7 +146,7 @@ Regarding the challenge submission our results were reasonable. Our initial resu
 
 We wrote the final report with the purpose of presenting our approach and solutions to the term project in a way that is easy to understand but still explains everything thoroughly. We decided to not show any code in our report. Instead, we present our methods by explaining the logic behind them and use figures and tables to help visualize our results. The main purpose of the report is to communicate what was done, how it was done and why it was done, and we think that our report does a good job at that.
 
-## 5.2 Grade for the group as a whole
+## 6.2 Grade for the group as a whole
 
 **Grade: 4**
 
