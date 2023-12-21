@@ -110,5 +110,23 @@ In the end we obtained the best results with SVR using standard scaler, default 
 
 # 4 Results & conclusions
 
+
+\newpage
+
 # 5 Self-grading
 
+## 5.1 Grade for the deliverables
+
+**Grade: 4**
+
+Our workflow for building a machine learning model and the methods we used were in our opinion appropriate for the task. We used multiple machine learning methods in the process of building our model, such as removing outliers, tuning hyperparameters and selecting features. Even though some of the methods did not end up being used to achieve the best results, exploring them gave us information about how the model behaves. A criticism of our approach to building the model would be the lack of domain knowledge we used. A better understanding of the subject could have helped us determine how the features affect our target variable, and our model building wouldn’t have relied so much on experimentation.
+
+Regarding the challenge submission our results were reasonable. Our initial results with simply selecting the right model were very promising. By applying machine learning methods to our model, we were able to improve the results; however, we were slightly underwhelmed by the impact our methods had.
+
+We wrote the final report with the purpose of presenting our approach and solutions to the term project in a way that is easy to understand but still explains everything thoroughly. We decided to not show any code in our report. Instead, we present our methods by explaining the logic behind them and use figures and tables to help visualize our results. The main purpose of the report is to communicate what was done, how it was done and why it was done, and we think that our report does a good job at that.
+
+## 5.2 Grade for the group as a whole
+
+**Grade: 4**
+
+The atmosphere within the group was positive. What we did well was discuss the subject matter and methods that we used in the project. Any concerns were discussed as a group and having multiple perspectives on a subject was helpful. What could’ve been improved upon is overall teamwork. Practical matters such as busy schedules and working remotely led to the group functioning more as individuals than as a collective team. 
