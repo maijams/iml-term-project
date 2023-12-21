@@ -2,7 +2,6 @@
 title: "IML 2023: Predicting Saturation Vapour Pressure From Molecular Properties"
 author: "Helmi Karesti, Janne Penttala, Maija Säisä"
 output: pdf_document
-date: "2023-12-10"
 ---
 
 # 1 Introduction
@@ -75,26 +74,41 @@ We tested dropping out rows which included at least one variable that could be r
 
 # 3 Methods
 
+The methods discussed in this section aim to improve the model R2 score in the Kaggle competition. However, the evaluation of the model optimization process for the Kaggle competition turned out to be challenging, as the R2 score in Kaggle did not correlate with local results. The cross-validated R2 score was locally at best varying between 0.71 and 0.76, while the results in Kaggle were between 0.62 and 0.66. The changes in the R2 score were often somewhat marginal both locally and in Kaggle, which made it difficult to evaluate the true effect of the changes. We were informed later that the test data we had for the Kaggle competition was actually skewed when compared to the training data. This could explain at least part of the differences we had in the results. In order to stay consistent, the R2 scores discussed in this and the latter sections were obtained locally with the cross-validation method.
+
 ## 3.1 Model selection
 
-For selecting our model, we first compared different models and their results in predicting the target variable. We evaluated the performance of the models based on their R2 score. The models we considered were Dummy Model, OLS Linear Regression, Random Forest, Support Vector Regressor, Lasso Regression and eXtreme Gradient Boosting. After testing these six different models with and without scaling, the best results were obtained by Support Vector Regression model with scaling.
+We started out by comparing different regression models on the preprocessed training data. Recall that in the preprocessing step we applied one-hot encoding on the *parentspecies* and did not yet drop any features apart from the *Id* column meaning that we had 32 features in total. Initially, we tested with OLS Linear Regression, Random Forest, Support Vector Regressor, Lasso Regression and eXtreme Gradient Boosting. Later, we also added MLP Regression and Elastic Net to the comparison. At this point, we did not set any model parameters apart from the random seed. We used cross-validation (k=5) to evaluate the R2 scores and fitted the models with and without scaling. The models that clearly benefited from the scaling were SVR and MLP. For Lasso and Elastic Net, the results actually worsened with scaling and for OLS Linear Regression, Random Forest and XGBoost the results remained more or less the same. The full results are presented in section 4. At this stage, we obtained the best overall R2 score with MLP (0.7421) and SVR (0.7383) using scaled data. XGBR also performed well (0.7299), and due to its significantly faster performance, we used it in the latter feature engineering phases among the two other best performing models.
 
-We also applied cross-validation in order to further verify our choice of model. We did this by using k-fold cross-validation (with k set to 5). The performance was once again evaluated by the models R2 score. As a result, Support Vector Regression model had once again the best performance.
+## 3.2 Parameter tuning
 
-## 3.2 Optimizing the model
+Next, we tried to improve the performance of the best models by tuning the hyperparameters. We tried using both GridSearch and RandomizedSearch to find the best hyperparameter combinations. For SVR, we tried different kernels (linear, rbf, poly), C values (0.1, 1, 10, 100), epsilon values (0.1, 0.2, 0.5) and gamma values (scale, auto). Unfortunately, we quickly realized that in this case the GridSearch with k=5 cross-validation took too long to run and we had to settle for a small RandomizedSearch and manual selection. In the end, we were able to obtain at least one hyperparameter combination that slightly improved the result for SVR. R2 score of 0.7444 was achieved with C=10 (default 1), kernel='rbf', gamma='scale' & epsilon=0.5 (default 0.1).
 
-To optimize our model to perform better, we tried i.a. removing outliers, tuning hyperparameters and selecting less features. Even if we obtained the best initial results with SVR, we decided to try and optimize the performance with other models as well. These models included Random Forest and XGB. We used randomized search to explore on different combinations of hyperparameters in order to improve the performance. The three models (SVR, Random Forest & XGB) delivered somewhat similar results, R2 score locally varying from 0.74 to 0.76 (when using 25% test data split). The effect of using the best hyperparameters vs. default values when defining the models turned out to be minimal. 
+With XGBR, we managed to improve the R2 score from 0.7299 to 0.7388 using RandomizedSearch with 20 iterations and k=5 cross-validation. The best hyperparameters were: colsample_bytree=0.983, gamma=0.162, learning_rate=0.166, max_depth=3, min_child_weight=17, n_estimators=596, reg_alpha=0.127, reg_lambda=0.123 & subsample=0.848. We tried to find the best hyperparameters again after feature engineering phase, but the hyperparameters remained the same. As the MLP model was only added later on, we actually didn't perform any parameter search for it.
 
-We also tried different combinations of the features to see if we could improve the performance. We ended up dropping several features that were produced by one-hot encoding of *parentspecies* variable, as they seemed to contain little information with both train and test data. These variables were *category_None*, *category_apin_decane*, *category_apin_decane_toluene*, *category_apin_toluene* and *category_decane_toluene*. We also removed *C.C.C.O.in.non.aromatic.ring*, *aromatic.hydroxyl* and *nitroester* variables as they too contained only little information. These feature selection methods resulted in a small improvement in the performance of the models. 
+## 3.3 Feature engineering
 
-The evaluation of the optimization process for the Kaggle competition turned out to be challenging, as the R2 score in Kaggle did not correlate with local results. In the end we obtained the best results with SVR using standard scaler, default hyperparameters and the feature selection as described above. 
-
-# 4 Feature selection
-
-# 5 Results
+### 3.3.1 Scaling features
 
 
-# 6 Conclusions
+### 3.3.2 Feature selection
 
-# 7 Self-grading
+As already discussed in the data exploration section, there were several features that seemed to have little or no effect on the target variable. These features were such that their value distributions were extremely concentrated on a certain value. We decided to drop these features from the data set. These features included most of the one-hot encoded *parentspecies* variables: *category_None*, *category_apin_decane*, *category_apin_decane_toluene*, *category_apin_toluene* & *category_decane_toluene*. In addition, other such features were *C.C.C.O.in.non.aromatic.ring*, *aromatic.hydroxyl* and *nitroester*. 
+
+We also tried a few different combinations of different features, but the best result was obtained by dropping the features mentioned above. At this point, we were still trying out with both SVR & XGBR and they both had slight increases in their R2 scores. However, it is questionable if the improvements were actually significant since the changes in R2 were so marginal. With the features that were left, it was more difficult to evaluate their effect on the target variable. In the hindsight, we probably could have used some methods to try and evaluate the importance of the other features as well.
+
+**TO BE CONTINUED**
+
+In the end we obtained the best results with SVR using standard scaler, default hyperparameters and the feature selection as described above.
+
+### 3.3.3 Creating new features
+
+
+### 3.3.4 Transforming features
+
+
+
+# 4 Results & conclusions
+
+# 5 Self-grading
 
