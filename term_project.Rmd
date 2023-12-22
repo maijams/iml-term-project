@@ -72,11 +72,9 @@ The third graph, that is the boxplot, complemented well the first two graphs. As
 
 ### Comparison of training and test data
 
-We plotted a histogram and a boxplot also for the variables in the test data in order to look for any differences between the distributions of the training and test data. The graphs for the variable *MW* are presented in Figure 5 (training data) and Figure 6 (test data). When comparing the data in the graphs for the variable *MW*, for example, we noticed that the values in the test data started from 100 while the training data also included values below 100. Consequently, we used this information in feature engineering.
+We plotted a histogram and a boxplot also for the variables in the test data in order to look for any differences between the distributions of the training and test data. The graphs of the training and test data for the variable *MW* are presented in Figure 5. When comparing the data in the graphs for the variable *MW*, for example, we noticed that the values in the test data started from 100 while the training data also included values below 100. Consequently, we used this information in feature engineering.
 
-![Histogram and boxplot for the MW variable in the training data.](pictures/data_exp_5_train_comp.png)
-
-![Histogram and boxplot for the MW variable in the test data.](pictures/data_exp_6_test_comp.png)
+![Histogram and boxplot for the MW variable in the training and test data.](pictures/data_exp_5_comparison.png)
 
 ### 2.2.3 Outlier considerations
 
