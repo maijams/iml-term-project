@@ -90,6 +90,7 @@ With XGBR, we managed to improve the R2 score from 0.7299 to 0.7388 using Random
 
 ### 3.3.1 Scaling features
 
+We had already scaled the train and test data in the preprocessing phase, but soon realized that when doing feature engineering and calculating R2 scores, we naturally had to use unscaled data and only scale in the cross-validation phase. In other words, the features were scaled separately in each engineering step.
 
 ### 3.3.2 Feature selection
 
@@ -97,15 +98,13 @@ As already discussed in the data exploration section, there were several feature
 
 We also tried a few different combinations of different features, but the best result was obtained by dropping the features mentioned above. At this point, we were still trying out with both SVR & XGBR and they both had slight increases in their R2 scores. However, it is questionable if the improvements were actually significant since the changes in R2 were so marginal. With the features that were left, it was more difficult to evaluate their effect on the target variable. In the hindsight, we probably could have used some methods to try and evaluate the importance of the other features as well.
 
-**TO BE CONTINUED**
-
-In the end we obtained the best results with SVR using standard scaler, default hyperparameters and the feature selection as described above.
-
 ### 3.3.3 Creating new features
 
+When reading the related article (Besel et al.), we found some hints about which features could possibly be more related to the target variable. There was a mention in the article that *'Generally, a large number of functional groups correlates with a low pSat.'* From this we concluded that we could create a new feature to describe the amount of different functional groups in a molecule. After this, we dropped the original functional group features and calculated the R2 score. Unfortunately this did not produce better results, and the R2 score decreased significantly. When keeping the original features and the new feature, the R2 score increased ever so slightly. Again, it was questionable whether the improvement was actually significant.
 
 ### 3.3.4 Transforming features
 
+Another hint we found in the article was related to nitro and nitrate groups and their molecular weights. The article states: *'Beyond 220g/mol the abundance of nitrate (62 g/mol) and nitro (46 g/mol) groups dominates. These groups have a comparatively large mass, but their contribution to a lower pSat is small, which explains the saturation of pSat to a low value.'*. Indeed, when we look at the scatter plot of MW vs. pSatPa (Figure 2), we can see that around MW value of 220 g/mol, the pSat values level out. Since the amount of nitro and nitrate groups was known, we tried to diminish their effect on the regression model by reducing their molecular weights from the total MW values. Unfortunately, we were once again disappointed as our model still didn't seem to improve and the R2 score remained pretty much the same.
 
 
 # 4 Results
