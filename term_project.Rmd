@@ -122,7 +122,7 @@ Our results consist of initial results using seven different models and our fina
 
 ### 4.1 Initial results with different models
 
-Our initial results include the R2 scores for seven different regression models with no hyperparameter tuning apart from the random seed. In Table 1 we can see how the models compare to each other with and without scaling.
+Our initial results include the R2 scores for seven different regression models with no hyperparameter tuning apart from the random seed. In Table 1 we can see how the models compare to each other with and without standard scaling.
 
 ```{python echo=FALSE}
 import pandas as pd
@@ -158,16 +158,35 @@ results = pd.DataFrame({
 
 ```{r echo=FALSE}
 df <- py$results
-knitr::kable(df, caption = "Results of the basic models with and without scaling")
+knitr::kable(df, caption = "Results of the basic models with and without standard scaling")
 ```
 
-As we can see from Table 1, Support Vector Regressor and MLP Regressor performed the best out of our basic models. Random Forest, OLS Linear Regressor and XGBRegressor also gave quite good results. Lasso and Elastic Net performed significantly worse than the other models. 
+As we can see from Table 1, after scaling Support Vector Regressor and MLP Regressor performed the best out of our basic models. Random Forest, OLS Linear Regressor and XGBRegressor also gave quite good results. Lasso and Elastic Net performed significantly worse than the other models. 
 
 ### 4.2 Final R2 scores
 
-After seeing our initial results with different models, we applied some machine learning methods to the best performing models to see if we could improve the R2 score. The machine learning methods applied to achieve these results are discussed more in-depth in the previous section. The final results are presented in figure 6 below.
+After obtaining our initial results with different models, we searched for optimal hyperparameters with SVR and XGBRegressor as they were the best performing models in our first version. Recall that we only added MLP out of interest in a later phase, and due to time limitations did not perform any hyperparameter tuning for it. However, we were interested to see how all the best performing models would perform after feature engineering steps. In conclusion, the final results in Table 2 were obtained after hyperparameter tuning and all of the feature engineering steps presented in the previous section (apart from those that actually degraded the performance of the models).
 
-![Results of the best models](pictures/final_results.png){ width=30% height=30% }
+```{python echo=FALSE}
+import pandas as pd
+
+final_results = pd.DataFrame({
+  'Model': [
+    'SVR',
+    'XGBRegressor',
+    'MLP Regressor'],
+  'R2 score': [
+    0.7538,
+    0.7505,
+    0.7493],
+    })
+```
+
+
+```{r echo=FALSE}
+df <- py$final_results
+knitr::kable(df, caption = "Final results of the best models after hyperparameter tuning & feature engineering")
+```
 
 The impact of the machine learning methods was not as big as expected. Support Vector Regressor and XGBRegressor had noticeable improvement over their basic models.
 
