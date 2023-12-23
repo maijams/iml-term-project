@@ -32,7 +32,7 @@ The data used in the project is based on GeckoQ dataset. Our first step with the
 
 ### 2.2.1 Scaling considerations
 
-We noticed that the range of values of the variables varied notably. Because we planned to test several models, some of which would perform better with scaled variables, we decided to apply the `StandardScaler()` on the data sets. We found some information, which claimed that scaling may not be appropriate for one-hot encoded variables. We considered whether we should leave these variables outside of the scaler function. We also found support for applying scaling to one-hot encoded variables to tackle the same challenges that the numerical variables face. Consequently, we tested this matter. Based on the results, not scaling the one-hot encoded variables seemed to have a tiny effect on the R2 score improving the score by around 0.0004-0.0012 for the models we tested, except for Lasso model where the R2 score actually declined by 0.0020. As the effect on the R2 score seemed unsignificant based on this analysis, we ended up using the scaled values also for the categorical variables when using scaled values for the numerical variables. We have presented the R2 score for the tested models with and without scaling in Table 1 in the Results section.
+We noticed that the range of values of the variables varied notably. Because we planned to test several models, some of which would perform better with scaled variables, we decided to apply the `StandardScaler()` on the data sets. We found some information, which claimed that scaling may not be appropriate for one-hot encoded variables. We considered whether we should leave these variables outside of the scaler function. We also found support for applying scaling to one-hot encoded variables to tackle the same challenges that the numerical variables face. Consequently, we tested this matter. Based on the results, not scaling the one-hot encoded variables seemed to have a tiny effect on the R2 score improving the score by around 0.0004-0.0012 for the models we tested, except for Lasso model where the R2 score actually declined by 0.0020. As the effect on the R2 score seemed unsignificant based on this analysis, we ended up using the scaled values also for the categorical variables when using scaled values for the numerical variables. We have presented the R2 score for the tested models with and without scaling in Table 3 in the Results section.
 
 ### 2.2.2 Data visualization
 
@@ -97,31 +97,104 @@ At this point, we did not set any model parameters apart from the random seed. W
 
 ## 3.2 Parameter tuning
 
-After model selection, we tried to improve the performance of the best models by tuning the hyperparameters. We tried using both `GridSearchCV()` and `RandomizedSearchCV()` to find the best hyperparameter combinations. For SVR, we tried different kernels (linear, rbf, poly), C values (0.1, 1, 10, 100), epsilon values (0.1, 0.2, 0.5) and gamma values (scale, auto). Unfortunately, we quickly realized that in this case the GridSearch with k=5 cross-validation took too long to run and we had to settle for a small RandomizedSearch and manual selection. In the end, we were able to obtain at least one hyperparameter combination that slightly improved the result for SVR. R2 score of 0.7444 was achieved with C=10 (default 1), kernel='rbf', gamma='scale' & epsilon=0.5 (default 0.1).
+After model selection, we tried to improve the performance of the best models by tuning the hyperparameters. We tried using both `GridSearchCV()` and `RandomizedSearchCV()` to find the best hyperparameter combinations. For SVR, we tried different kernels (linear, rbf, poly), C values (0.1, 1, 10, 100), epsilon values (0.1, 0.2, 0.5) and gamma values (scale, auto). Unfortunately, we quickly realized that in this case the GridSearch with k=5 cross-validation took too long to run and we had to settle for a small RandomizedSearch and manual selection. In the end, we were able to obtain at least one hyperparameter combination that slightly improved the result for SVR. R2 score of 0.7444 was achieved with the parameters presented in Table 1.
 
-With XGBR, we managed to improve the R2 score from 0.7299 to 0.7388 using RandomizedSearch with 20 iterations and k=5 cross-validation. The best hyperparameters were: colsample_bytree=0.983, gamma=0.162, learning_rate=0.166, max_depth=3, min_child_weight=17, n_estimators=596, reg_alpha=0.127, reg_lambda=0.123 & subsample=0.848. We tried to find the best hyperparameters again after feature engineering phase, but the hyperparameters remained the same. As the MLP model was only added later on, we did not perform any parameter search for it.
+```{python echo=FALSE}
+import pandas as pd
+
+svr_param = pd.DataFrame({
+  'Parameter': [
+    'C',
+    'kernel',
+    'gamma',
+    'epsilon'],
+  'Optimal value': [
+    10,
+    '"rbf"',
+    '"scale"',
+    0.5],
+    'Default value': [
+    1,
+    '"rbf"',
+    '"scale"',
+    0.1],
+    })
+```
+
+
+```{r echo=FALSE}
+df <- py$svr_param
+knitr::kable(df, caption = "Optimal hyperparameters found for SVR")
+```
+
+With XGBR, we managed to improve the R2 score from 0.7299 to 0.7388 using RandomizedSearch with 20 iterations and k=5 cross-validation. The best hyperparameters are shown in Table 2. We tried to find the best hyperparameters again after feature engineering phase, but the hyperparameters remained the same. As the MLP model was only added later on, we did not perform any parameter search for it.
+
+```{python echo=FALSE}
+import pandas as pd
+
+xgbr_param = pd.DataFrame({
+  'Parameter': [
+    'colsample_bytree',
+    'gamma',
+    'learning_rate',
+    'max_depth',
+    'min_child_weight',
+    'n_estimators',
+    'reg_alpha',
+    'reg_lambda',
+    'subsample'],
+  'Optimal value': [
+    0.983,
+    0.162,
+    0.166,
+    '3',
+    17,
+    596,
+    0.127,
+    0.123,
+    0.848],
+    })
+```
+
+
+```{r echo=FALSE}
+df <- py$xgbr_param
+knitr::kable(df, caption = "Optimal hyperparameters found for XGBR")
+```
 
 ## 3.3 Feature engineering
 
 ### 3.3.1 Scaling features
 
-We had already scaled the train and test data in the preprocessing phase, but soon realized that when doing feature engineering and calculating R2 scores, we naturally had to use unscaled data and only scale in the cross-validation phase. In other words, the features were scaled separately in each engineering step.
+Even if we had already scaled the train and test data in the preprocessing phase, but soon realized that when doing feature engineering and calculating R2 scores, we naturally had to use unscaled data and scale only in the cross-validation phase. In other words, the features were scaled separately in each engineering step.
 
 ### 3.3.2 Feature selection
 
-As mentioned in the data exploration section, some of the observations encouraged us to test dropping certain features. We tested keeping only the features that showed a somewhat linear relationship with the target variable; this test did not improve the results for the linear regression model nor other models. We also tested, for example, dropping all the other categorical variables except for *category_toluene* (the only categorical variable notably having the two type of observations); however, the results slightly deteriorated with this change, so dropping only the seven one-hot encoded variables was not supported.
+As mentioned in the data exploration section, some of the observations encouraged us to test dropping certain features. We tested keeping only the features that showed a somewhat linear relationship with the target variable; this test did not improve the results for the linear regression model nor the other models. We also tested, for example, dropping all the other categorical variables except for *category_toluene* (the only categorical variable notably having the two type of observations); however, the results slightly deteriorated with this change, so dropping only the seven one-hot encoded variables was not supported.
 
 Furthermore, we tested to drop features with value distributions that were extremely concentrated on a certain value. These features included most of the one-hot encoded *parentspecies* variables: *category_None*, *category_apin_decane*, *category_apin_decane_toluene*, *category_apin_toluene* and *category_decane_toluene*. In addition, other such features were *C.C.C.O.in.non.aromatic.ring*, *aromatic.hydroxyl* and *nitroester*. 
 
-We also tried a few different combinations of different features, but the best result was obtained by dropping the features mentioned above. At this point, we were still trying out with both SVR & XGBR and they both had slight increases in their R2 scores. However, it is questionable if the improvements were actually significant since the changes in R2 were so marginal. With the features that were left, it was more difficult to evaluate their effect on the target variable. In the hindsight, we probably could have used some methods to try and evaluate the importance of the other features as well.
+We also tried a few different combinations of different features, but the best result was obtained by dropping the eight features mentioned above. At this point, we were still trying out with SVR, XGBR & MLP and they all had slight increases in their R2 scores. However, it is questionable if the improvements were actually significant since the changes in R2 were so marginal. With the features that were left, it was more difficult to evaluate their effect on the target variable based on the data exploration. In the hindsight, we probably could have used some other methods to try and evaluate the importance of the other features as well.
 
 ### 3.3.3 Creating new features
 
-When reading the related article (Besel et al.), we found some hints about which features could possibly be more related to the target variable. There was a mention in the article that *'Generally, a large number of functional groups correlates with a low pSat.'* From this we concluded that we could create a new feature to describe the amount of different functional groups in a molecule. After this, we dropped the original functional group features and calculated the R2 score. Unfortunately this did not produce better results, and the R2 score decreased significantly. When keeping the original features and the new feature, the R2 score increased ever so slightly. Again, it was questionable whether the improvement was actually significant.
+When reading the related article (Besel et al.), we found some hints about which features could possibly be more related to the target variable. There was a mention in the article that *'Generally, a large number of functional groups correlates with a low pSat'*. These functional groups consisted of the following 16 features: 
+
+*C.C..non.aromatic.*, *C.C.C.O.in.non.aromatic.ring*, *aldehyde*, *aromatic.hydroxyl*, *carbonylperoxyacid*, *carbonylperoxynitrate*, *carboxylic.acid*, *ester*, *ether..alicyclic.*, *hydroperoxide*, *hydroxyl..alkyl.*, *ketone*, *nitrate*, *nitro*, *nitroester* & *peroxide*
+
+From this we concluded that we could create a new feature to describe the amount of different functional groups in a molecule. After creating the new feature, we dropped the original functional group features and calculated the R2 score. Unfortunately this did not produce better results, and instead the R2 score decreased significantly. When keeping the original features and the new feature, the R2 score increased ever so slightly. Again, it was questionable whether the improvement was actually significant.
 
 ### 3.3.4 Transforming features
 
-Another hint we found in the article was related to nitro and nitrate groups and their molecular weights. The article states: *'Beyond 220g/mol the abundance of nitrate (62 g/mol) and nitro (46 g/mol) groups dominates. These groups have a comparatively large mass, but their contribution to a lower pSat is small, which explains the saturation of pSat to a low value.'*. Indeed, when we look at the scatter plot of MW vs. pSatPa (Figure 2), we can see that around MW value of 220 g/mol, the pSat values level out. Since the amount of nitro and nitrate groups was known, we tried to diminish their effect on the regression model by reducing their molecular weights from the total MW values. Unfortunately, we were once again disappointed as our model still didn't seem to improve and the R2 score remained pretty much the same.
+Another hint we found in the article was related to nitro and nitrate groups and their molecular weights. The article states: *'Beyond 220g/mol the abundance of nitrate (62 g/mol) and nitro (46 g/mol) groups dominates. These groups have a comparatively large mass, but their contribution to a lower pSat is small, which explains the saturation of pSat to a low value.'*. Indeed, when we look at the scatter plot of *MW* vs. *pSatPa* (Figure 2), we can see that around MW value of 220 g/mol, the pSat values level out. 
+
+Since the amount of nitro and nitrate groups was known, we tried to diminish their effect on the regression model by reducing their molecular weights from the total MW values. Unfortunately, we were once again disappointed as our model still didn't seem to improve and the R2 score remained pretty much the same.
+
+### 3.3.5 Filtering training data
+
+As discussed in the data exploration section, we did some comparisons between the feature value distributions of the training and test data. One observation we made was with the molecular weight as shown in Figure 5. In order to have more similar distributions, we decided to drop the MW values smaller than 100 g/mol from the training data. This seemed to have a small improvement on the model performances.
+
+We also tried filtering the training data based on the outliers. However as already mentioned earlier, these steps did not improve the results.
 
 
 # 4 Results
@@ -130,7 +203,7 @@ Our results consist of initial results using seven different models and our fina
 
 ### 4.1 Initial results with different models
 
-Our initial results include the R2 scores for seven different regression models with no hyperparameter tuning apart from the random seed. In Table 1 we can see how the models compare to each other with and without standard scaling.
+Our initial results include the R2 scores for seven different regression models with no hyperparameter tuning apart from the random seed. In Table 3 we can see how the models compare to each other with and without standard scaling.
 
 ```{python echo=FALSE}
 import pandas as pd
@@ -169,11 +242,11 @@ df <- py$results
 knitr::kable(df, caption = "Results of the basic models with and without standard scaling")
 ```
 
-As we can see from Table 1, after scaling Support Vector Regressor and MLP Regressor performed the best out of our basic models. Random Forest, OLS Linear Regressor and XGBRegressor also gave quite good results. Lasso and Elastic Net performed significantly worse than the other models. 
+As we can see from Table 3, after scaling Support Vector Regressor and MLP Regressor performed the best out of our basic models. Random Forest, OLS Linear Regressor and XGBRegressor also gave quite good results. Lasso and Elastic Net performed significantly worse than the other models. 
 
 ### 4.2 Final R2 scores
 
-After obtaining our initial results with different models, we searched for optimal hyperparameters with SVR and XGBRegressor as they were the best performing models in our first version. Recall that we only added MLP out of interest in a later phase, and due to time limitations did not perform any hyperparameter tuning for it. However, we were interested to see how all the best performing models would perform after feature engineering steps. In conclusion, the final results in Table 2 were obtained after hyperparameter tuning and all of the feature engineering steps presented in the previous section (apart from those that actually degraded the performance of the models).
+After obtaining our initial results with different models, we searched for optimal hyperparameters with SVR and XGBRegressor as they were the best performing models in our first version. Recall that we only added MLP out of interest in a later phase, and due to time limitations did not perform any hyperparameter tuning for it. However, we were interested to see how all the best performing models would perform after feature engineering steps. In conclusion, the final results in Table 4 were obtained after hyperparameter tuning and all of the feature engineering steps presented in the previous section (apart from those that actually degraded the performance of the models).
 
 ```{python echo=FALSE}
 import pandas as pd
@@ -196,11 +269,17 @@ df <- py$final_results
 knitr::kable(df, caption = "Final results of the best models after hyperparameter tuning & feature engineering")
 ```
 
-The impact of the machine learning methods was not as big as expected. Support Vector Regressor and XGBRegressor had noticeable improvement over their basic models.
+As we can see from Table 4, the final results of the best performing models were quite similar. SVR performed the best with a R2 score of 0.7538, followed by XGBRegressor with a R2 score of 0.7505 and MLP Regressor with a R2 score of 0.7493. The results were quite similar to the initial results, but the R2 scores were slightly higher. After all the effort we input into parameter tuning and feature engineering, we were a bit disappointed that the improvements in R2 scores were so modest.
+
 
 # 5 Conclusions
 
-In conclusion we build a machine learning model and evaluated the performance of our model by R2 score. To build our model we experimented on several basic models and chose the best performing one. By applying machine learning methods we were able to improve our model further. In the model building process we tried out many different approaches to improve our model, however not all of them had noticeable impact. 
+In conclusion, the aim of this project was to build a machine learning model and try to improve its performance with predicting the *pSatPa* target variable. The prediction accuracy was evaluated based on the R2 score. To build our model, we experimented on several basic models and chose the best performing ones for further inspection. By applying parameter tuning and different feature engineering steps, we were able to improve our model further. In the model building process we tried out many different approaches to improve our model, however not all of them had a noticeable impact on the R2 score.
+
+One major learning point that we took from this project was that the model building process with countless model fittings can be very time consuming. With the fairly large dataset that we had, our best performing model SVR took over a minute to do a single fitting. This quickly adds up with cross-validation and especially in the scenario where you try to search for the optimal hyperparameters. Different steps of feature engineering also required us to do more model fittings, which led to us spending a lot of time waiting for the models to finish training. Even if the size of the dataset decreased during the feature engineering process, the fitting time did not significantly improve. We even tried the free version of Google Colab to see if it would speed up the process, but unfortunately it did not help. On the positive side, XGBRegressor was very fast to fit, which made it more suitable for trying out different feature engineering steps and combinations.
+
+We also learned that the model building process is not always straightforward and that it is important to understand the data and the problem well. In our case, we were not able to improve the model performance significantly, but we were able to learn a lot about the process of building a machine learning model. It was easy to get confused after trying several different approaches and not knowing which ones to choose or combine. For example, should you try all possible combinations of your feature engineering steps or is it fair to assume that if each of them improves the result independently, their combination will perform even better? We also learned the importance of keeping good track of the different approaches and their results, since you could suddenly find yourself in a situation where the methods you've tried have built up and your files have become messy. This is definitely something that could be improved with proper ML pipelines & ML system automation. As final thoughts, we found this project to be very useful in terms of gaining experience in the process of building a machine learning model and having the possibility to implement the methods we learned during the course in a practical setting.
+
 
 \newpage
 
